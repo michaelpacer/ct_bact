@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+<!-- Continuous Time Bacteria Luminescence Experiment HTML file -->
+<!-- style.display can be altered as an alternative to using DOM -->
+
+<!-- load formatting -->
+<link rel="stylesheet" type="text/css" href="format.css" />
+
+<!-- loads data file and master JS-->
+<?php echo "<script type= \"text/javascript\" src=\"data"; echo $experiment; echo ".js\"></script>"; ?>
+<script type="text/javascript" src="exp.js"></script>
+</head>
+
+<body onload="init()">
+<div id="consent" class="consent">
+<h1> Consent Form: Cognitive Research Using Amazon Mechanical Turk </h1>
+<p>This research is being conducted by Prof. Thomas Griffiths, a faculty 
+member at the University of California at Berkeley. His lab 
+investigates computational models of human cognition. This study 
+typically takes about 10<b>?</b> minutes.</p>
+<p>If you agree to take part in the research, you will be asked to look at 
+a series of images that represent experimental data, and use this 
+information to make judgments about those experiments.
+All of the information we obtain during the research will be kept 
+confidential, and not associated with your name in any way.</p>
+<p>Your participation in this research is voluntary. You are free to refuse 
+to take part, and you may stop taking part at any time.
+You are free to discontinue participation in this study at any time with 
+no penalty. If there are any questions that makes you 
+uncomfortable or that you do not want to answer, it is your right to 
+refrain from answering them</p>
+<p>If you have any questions about this research, do not hesitate to 
+contact Mike Pacer at <a href="mailto:mpacer@berkeley.edu">mpacer@berkeley.edu</a>. If you have any 
+questions about your rights or treatment as a participant in this 
+research project, please contact UC Berkeley's Committee for Protection 
+of Human Subjects at (510) 642-7461 or <a href="mailto:subjects@berkeley.edu">subjects@berkeley.edu</a></p>
+<p>By selecting the "Continue" button below, I acknowledge that I am 18 
+years or older, have read this consent form, agree to its contents, and 
+agree to take part in this research.</p>
+<hr>
+<input type="Button" onClick="goTo('consent','desc')" value="Continue">
+</div>
+
+<div id="desc" class="desc">
+<h1> Experiment Description </h1>
+<p> A biotech lab is investigating the effects of a radiation treatment on bioluminescence in bacterial cultures. The cultures emit light without any radiation, but the scientists think
+that different kinds of radiation may affect the rate of bioluminesce. Some types of radiation may promote luminescence and other types may discourage it, while some may have no effect at all.</p>
+<p>To study the effects of different types of radiation, 40 cultures of the bacteria are prepared, and observed for 60 seconds, during which they are treated with radiation at different times as 
+determined by the scientists. Because the bacteria light up naturally, the scientists also observe another 40 bacteria cultures that were not exposed to radiation.
+This way data from the treated bacteria and untreated bacteria may be compared to see what effect, if any, the radiation treatment had.</p>
+<p> Your job will be to examine this data and make a determination about whether the radiation increases the rate of bioluminescence, decreases the rate of bioluminescence or does not affect the
+ rate of bioluminescence.
+To help you do this the scientists have created visualizations of their experiments. Each of the cultures will be represented by a box. The luminescence of any given bacterial culture will be indicated by a short yellow flash.
+The scientists only irradiate the bacteria at particular times, and when the scientists expose the bacteria to radiation there will be a short flash in the radiation circle. You will see an example of both a bacteria lighting up and a radiation exposure on the next page. </p>
+<p>Because there are two groups of 40 cultures, you will observe two visualizations each of which last 60 seconds long. One visualization represents the results from the group that
+never receives any exposure to radiation. The other visualization will represent the bioluminescence activity from bacteria that are exposed to the radiation at the relevant predisgnated times.
+An alert will pop-up before the experiments begin that will let you know whether or not the next group of bacteria will be exposed to radiation. </p>
+<p>You will view the data from five days of observation for each group over 60 seconds, then rate the effect of the treatment on the species by reporting how confident you feel the treatment causes luminescence, how confident you feel it prevents it, and how confident you feel there is no effect.
+Each rating will be on a scale from 0 to 100. A rating of zero indicates <i>no confidence</i> and a rating of one hundred indicates <i> total confidence </i>. If your judgement is between these extreme values, please use intermediate numbers.</p>
+<p><b>An Important Note!</b> Please disable any pop-up blocking plugins or software your browser is running for this experiment!</p>
+<!-- Dan I'm guessing you're going to take care of the above rating description when you fix the introduction to the simplex type rating scheme. -->
+
+<p> Click the "See Example Diagrams" button when you are comfortable with the explanation above. You will have the 
+option of returning to reread it if you wish.</p>
+<input type="button" onClick="goTo('desc','example')" value="See Example Diagrams"/>
+</div>
+
+<div id="example" class="example">
+<h1>Example Diagrams</h1>
+<p>Below you see an example culture, represented as a box. There will be 40 such cultures displayed in each diagram. When you press the button labeled "Luminesce" the culture will luminesce briefly.</p>
+<p> To the right of the culture is a circular indicator that indicates when radiation is applied. When you press the button labeled "Irradiate Me!," it will send out radiation. Please note <b> this particular
+blue radiation has no effect</b> while radiation <b>during</b> the experiment <b>may or may not</b> alter the rate of luminescence. Note also that in the experiment, the scientists will control when
+irratiation occurs, so there will be no "Irradiate Me!" button.</p>
+
+<table align="center">
+<tr><td><img id="exbact" src="normal.jpg" alt="Culture"/></td><td><img id="exInd" src="indOff.jpg" alt="Indicator"/></td></tr><tr><td><input type="button" onClick="exPlay1()" value="Luminesce" /></td><td><input type="button" onClick="exPlay2()" value="Irradiate Me!" /></td></tr></table>
+<p>When you feel you understand the diagrams, click "See a Rating Form Example."</p>
+<br/>
+<form align="center"><input type="button" onClick="goTo('example','desc')" value="Return to the Description"/>
+<input type="button" onClick="goTo('example','formEx')" value="See a Rating Form Example"/></form>
+</div>
+
+<div id="formEx" class="formEx">
+<h1>An Example Rating Form</h1>
+<p>After viewing the experiment, you will see a rating form similar to the one below. Following the experiment, the form will be titled "Ratings by Type of Relationship" instead, and the fields will be "Causal," "Preventative," and "None." But for the sake of example, pretend you roll a die. Distribute a total of 100 points among the inputs in accordance with your confidence in each outcome and press submit.</p>
+<form>
+<fieldset>
+<legend>Confidence Ratings in Die Roll:</legend>
+<table align="center">
+<tr>
+<td align="center">Rolling 1,2,or 3:</td>
+<td align="center">Rolling 4 or 5:</td>
+<td align="center">Rolling 6:</td>
+</tr><tr>
+<td><input type="text" align="center" size="20" id="responseA"/></td>
+<td><input type="text" align="center" size="20" id="responseB"/></td>
+<td><input type="text" align="center" size="20" id="responseC"/></td>
+</tr>
+</table>
+</fieldset>
+<br/>
+<input type="button" onClick="toyForm()" value="Submit Response" />
+</form>
+<p>Note that a good response for confidence in getting 1,2, or 3 might be "50". When you feel you understand the rating system, click "Proceed to the Experiment". Please make sure you understand the instructions before proceeding, as you will not be allowed to return.</p>
+<br/>
+<form align="center"><input type="button" onClick="goTo('formEx','example')" value="Return to the Description"/>
+<input type="button" onClick="goTo('formEx','exp')" value="Proceed to the Experiment."/></form>
+</div>
+
+
+<div id="exp" class="exp">
+<p id="expLabel">
+(This is dynamically changed)
+</p>
+<table>
+<tr>
+<td> <img id="bact1" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact2" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact3" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact4" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact5" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact6" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact7" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact8" src="normal.jpg" alt="Culture"> </td>
+</tr>
+<tr>
+<td> <img id="bact9" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact10" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact11" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact12" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact13" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact14" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact15" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact16" src="normal.jpg" alt="Culture"> </td>
+</tr>
+<tr>
+<td> <img id="bact17" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact18" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact19" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact20" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact21" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact22" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact23" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact24" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="indicator" src="indOff.jpg" alt="Indicator"> <td/>
+</tr>
+<tr>
+<td> <img id="bact25" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact26" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact27" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact28" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact29" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact30" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact31" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact32" src="normal.jpg" alt="Culture"> </td>
+</tr>
+<tr>
+<td> <img id="bact33" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact34" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact35" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact36" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact37" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact38" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact39" src="normal.jpg" alt="Culture"> </td>
+<td> <img id="bact40" src="normal.jpg" alt="Culture"> </td>
+</tr>
+</table>
+<form align="center"> <input type="button" id="bb" value="Click to Begin" onClick="begin()"/> </form>
+</div>
+
+<div id="interim1" class="interim1">
+<br/><br/> <form>
+And 60 seconds is UP!<br/><br/>
+Take a moment to recall what you just saw, then proceed to the next visualization by clicking "Show Me!"
+<br/><br/>
+<input type="button" onClick="goTo('interim1','exp')" value="Show Me!">
+</form>
+</div>
+
+
+<div id="interim2" class="interim2">
+<br/><br/>
+<!-- <form> -->
+<form name="rateForm" action="ThankYou.php" method="post" onsubmit="return validateForm()">
+And 60 seconds is UP!<br/><br/>
+Please distribute 100 points among the catagories below to indicate how you consider the radiation to have affected luminescence. Remember a 0 means you have no confidence in a particular relationship and 100 means you have absolute confidence in said relationship. <br/><br/>
+<fieldset>
+<legend>Ratings by Type of Relationship:</legend>
+<table align="center">
+<tr>
+<td align="center">Causal</td>
+<td align="center">Preventative</td>
+<td align="center">None</td>
+</tr><tr>
+<td><input name="rateFieldC" type="text" size="10" id="responseC"/></td>
+<td><input name="rateFieldP" type="text" size="10" id="responseP"/></td>
+<td><input name="rateFieldN" type="text" size="10" id="responseN"/></td>
+</tr>
+</table>
+</fieldset>
+<br/>
+
+<input name="submit" type="submit" value="Submit Response" />
+<input name="trackerField" type="text" size="10" id="responseDsc" style="display:none"/>
+</form>
+</div>
+
+<!--
+<form align="center" id="debugDisplay">
+exClock: <input type="text" id="exClock" size="4" />
+Clock Display: <input type="text" id="clockDisplay" size="4" />
+<input type="button" onClick="goTo('exp','interim1')" value="ToInt1">
+<input type="button" onClick="goTo('exp','interim2')" value="ToInt2">
+</form>
+-->
+
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+<!-- Notes: This is currently being implemented using 40 "cultures" of which half die and a timespan of 30 seconds.
+Should notify participants they may see "immediate" death and death very near end of observation in part of cover 
+story. Refreshing will kill the experiment as index.php will say user has been there before. -->
+
+<style type="text/css">
+h1 {font-size:1.5em;}
+h2 {font-size:1.25em;}
+p {font-family:Verdana, Geneva, sans-serif; text-indent:50px;}
+form {font-family:Verdana, Geneva, sans-serif; text-indent:0px;}
+
+
+<!-- style.display can be altered as an alternative to using DOM -->
+.consent {display:block;}
+.desc, .debrief, .example, .exp, .interim1, .interim2, .thanks {display:none;}
+
+.consent, .debrief, .interim1, .desc, .example, .interim2, .exp, .thanks {margin-left:auto; margin-right:auto; width:706px;}
+</style>
+
+<script type="text/javascript">
+//<!--
+//checks browser support for image el via object detection
+//preloads images
+if (document.images) {
+	aliveImage = new Image(84,85);
+	aliveImage.src = "Alive.jpg";
+	
+	deadImage = new Image(84,85);
+	deadImage.src = "Dead.jpg";
+
+	dyingImage = new Image(84,85);
+	dyingImage.src = "Dying.jpg";
+}
+var cond;
+var clock;
+//var checkarray = new Array();
+var deathOrder = new Array();
+var expCounter = 0;
+var eTimes = new Array();
+var index = 0;
+var indexHolder = new Array();
+var stopToggle = 0;
+
+var start = new Date().getTime();
+var	time = 0;
+var elapsed = 0;
+
+
+function begin(){
+	document.getElementById('bb').style.display='none';
+	stopToggle = 0;
+	start = new Date().getTime();
+	time = 0;
+	newTimer();
+	expCounter++;
+}
+
+//switching of images is done by changing source
+function checkTime(){
+	if(elapsed===eTimes[index]){
+		indexHolder.push(index);
+		kill(index);
+		setTimeout("dead()",50);
+		index++;
+//		checkarray.push(elapsed);
+	}
+	if(elapsed===30){
+		stopToggle = 1;
+		document.getElementById('exp').style.display='none';
+		if(expCounter==2){document.getElementById('interim2').style.display='block';}
+		else{document.getElementById('interim1').style.display='block';}
+	}
+}
+
+//Fisher-Yates (Knuth) shuffle for random sampling w/o replacement from integers 1 to 40
+//implemented for transparency, maybe not maximally efficient
+function compileDeathOrder(){
+	for (var i=0;i<=39;i++){deathOrder[i] = i+1;}
+	for (var max=39;max>=0;max=max-1){
+		var swapIndex = Math.floor(Math.random()*max);
+		var swapA = deathOrder[swapIndex];
+		var swapB = deathOrder[max];
+		deathOrder[max] = swapA;
+		deathOrder[swapIndex] = swapB;
+	}
+}
+
+function dead(){
+	var itemNum = indexHolder[0];
+	indexHolder.shift();
+	document.getElementById('bact'+deathOrder[itemNum]).src="Dead.jpg";
+}
+
+function exPlay(){
+	exClock();
+	function exClock(){
+		clock=Math.round(clock*100+1)/100;
+		if(clock==0.5){
+			document.getElementById('exbact').src="Dying.jpg";
+		}
+		if(clock==0.55){
+			document.getElementById('exbact').src="Dead.jpg";
+		}
+		if(clock==2){
+			document.getElementById('exbact').src="Alive.jpg";
+			clock=0;
+			return false;
+		}
+		t=setTimeout("exPlay()",10);
+	}
+}
+
+function goToDesc(){
+	document.getElementById('consent').style.display='none';
+	document.getElementById('example').style.display='none';
+	document.getElementById('desc').style.display='block';
+}
+
+function goToExamples(){
+	document.getElementById('desc').style.display='none';
+	document.getElementById('example').style.display='block';
+}
+
+function goToExp(){
+	for(var i=1;i<=40;i++){document.getElementById('bact'+i).src="Alive.jpg";}
+	index=0;
+	if(expCounter%2===0){document.getElementById('expLabel').innerHTML='The cultures currently displayed have NOT been TREATED <input type="button" id="bb" value="Click to Begin" onClick="begin()"/>';}
+	if(expCounter%2===1){document.getElementById('expLabel').innerHTML='The cultures currently displayed have been TREATED <input type="button" id="bb" value="Click to Begin" onClick="begin()"/>';}
+	document.getElementById('example').style.display='none';
+	document.getElementById('interim1').style.display='none';
+	document.getElementById('exp').style.display='block';
+}
+
+//.sort(sortNumber) is standard method for sorting numbers, .sort() is lexicographic otherwise 
+function init(){
+	clock = 0;
+	for (var i=0;i<=14;i++){eTimes[i] = (Math.floor(Math.random()*3000))/100;}
+	for (var i=0;i<=14;i++){
+		eTimes[i] = eTimes[i]*100;
+		alert(eTimes[i])
+//		if(eTimes[i]%2){eTimes[i] = eTimes[i]++;}
+		eTimes[i] = eTimes[i]/100;
+		alert(eTimes[i])
+	}
+	eTimes = eTimes.sort(sortNumber);
+	alert(eTimes);
+	compileDeathOrder();
+}
+
+function kill(i){
+	document.getElementById('bact'+deathOrder[i]).src="Dying.jpg";
+}
+
+function sortNumber(a,b) {return a - b;}
+
+/*function tickClock(){
+	t=setTimeout("tickClock()",10);
+	checkTime();
+	clock=Math.round(clock*100+1)/100;
+	document.getElementById('clockDisplay').value=clock;
+//wait 10 milliseconds
+}*/
+
+function newTimer(){
+	checkTime();
+    time += 20;
+    elapsed = Math.floor(time / 10) / 100;
+    document.getElementById('newField').value = elapsed;
+    var diff = (new Date().getTime() - start) - time;
+	if(stopToggle===0){window.setTimeout(newTimer, (20 - diff));}
+}
+
+function validateForm() {
+    var x = document.forms["rateForm"]["rateField"].value;
+    var y = parseInt(x);
+//debug:    document.forms["rateForm"]["debug"].value = typeof(x) + y + eval(x!=y);
+//debug:    return false;
+    if(x!=y){
+	    alert(" You must provide a rating for these batches between 0 (extremely unlikely) and 100 (extremely likely)");
+	    return false;
+		}
+    if(y>100 || y<-100) {
+	    alert(" You must provide a rating for these batches between 0 (extremely unlikely) and 100 (extremely likely)");
+	    return false;
+		}
+    thisform.submit();
+}
+
+//-->
+</script>
+
+</head>
+<body onload=init()>
+
+<div id="consent" class="consent">
+<h1> Consent Form: Cognitive Research Using Amazon Mechanical Turk </h1>
+<p>This research is being conducted by Prof. Thomas Griffiths, a faculty 
+member at the University of California at Berkeley. His lab 
+investigates computational models of human cognition. This study 
+typically takes about 10<b>?</b> minutes.</p>
+<p>If you agree to take part in the research, you will be asked to look at 
+a series of images that represent experimental data, and use this 
+information to make judgments about those experiments.
+All of the information we obtain during the research will be kept 
+confidential, and not associated with your name in any way.</p>
+<p>Your participation in this research is voluntary. You are free to refuse 
+to take part, and you may stop taking part at any time.
+You are free to discontinue participation in this study at any time with 
+no penalty. If there are any questions that makes you 
+uncomfortable or that you do not want to answer, it is your right to 
+refrain from answering them</p>
+<p>If you have any questions about this research, do not hesitate to 
+contact Mike Pacer at <a href="mailto:mpacer@berkeley.edu">mpacer@berkeley.edu</a>. If you have any 
+questions about your rights or treatment as a participant in this 
+research project, please contact UC Berkeley's Committee for Protection 
+of Human Subjects at (510) 642-7461 or <a href="mailto:subjects@berkeley.edu">subjects@berkeley.edu</a></p>
+<p>By selecting the "Continue" button below, I acknowledge that I am 18 
+years or older, have read this consent form, agree to its contents, and 
+agree to take part in this research.</p>
+<hr>
+<input type="Button" onClick="goToDesc()" value="Continue">
+</div>
+
+<div id="desc" class="desc">
+<h1> Experiment Description </h1>
+<p> A biotechnology lab is investigating the effects of a radiation treatment on the survival 
+ of bacterial cultures. These cultures may of course naturally die, but the effect of radiation on their survival
+ is not yet known; Some types of radiation may promote survival and other types may discourage it. Some may have 
+ no effect at all.</p>
+<p> The laboratory has experimented with 18 different species of bacteria. To study the effects of radiation on a 
+ species, 40 cultures of that species are prepared, treated <b>once</b>, and observed for five days. Since each culture 
+ may die naturally, regardless of the treatment, another 40 cultures are prepared with no treatment and  
+ observed for the same amount of time. This way data from the treated bacteria and untreated bacteria may be compared
+ to see what effect, if any, the radiation treatment had.</p>
+ <p> Your job will be to examine time-lapse diagrams of cultures represented as boxes. The death of any
+ given bacterial culture will be indicated by a short black flash and a subsequent grey color. The <b> first </b> diagram will corrospond to an <b> untreated </b> 
+ group of (40) cultures and the second diagram will corrospond to a treated group of the same species. You will view the data
+ from five days of observation in 30 seconds, then rate the effect of the treatment on the species on a scale of -100 to 100. Here, -100 means the treatment very 
+ strongly discourages survival, 0 means the treatment does nothing, and 100 means the treatment very strongly 
+ encourages survival. If your judgement is inbetween these extreme values, please use intermediate numbers.</p> 
+<p> Click the "See an Example" button when you are comfortable with the explanation above. You will have the 
+option of returning to reread it if you wish.</p>
+<input type="button" onClick="goToExamples()" value="See an Example"/>
+</div>
+
+<div id="example" class="example">
+<h1>An Example</h1>
+<p>Below you see an example culture, represented as a box.  There will be 40 such cultures displayed in each diagram. 
+When you press the button labeled "Play the Example," the culture will "die". That is it will flash black momentarily 
+before being grayed out. The example will then reset so you may view it again.</p>
+<table align="center">
+<tr>
+<td> <img id="exbact" src="Alive.jpg" alt="Culture"> </td>
+</tr>
+</table>
+<form align="center"> <input align="center" type="button" onClick="exPlay()" value="Play the Example" /> </form>
+<br />
+<p>Please make sure you understand the instructions before proceeding, as you will not be allowed to return.</p>
+<br /><form align="center"><input type="button" onClick="goToDesc()" value="Return to the Description"/>
+<input type="button" onClick="goToExp()" value="Proceed to the Experiment"/></form>
+</div>
+
+<div id="exp" class="exp">
+<form id="expLabel">
+(This is dynamically changed)
+</form>
+<table>
+<tr>
+<td> <img id="bact1" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact2" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact3" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact4" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact5" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact6" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact7" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact8" src="Alive.jpg" alt="Culture"> </td>
+</tr>
+<tr>
+<td> <img id="bact9" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact10" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact11" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact12" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact13" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact14" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact15" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact16" src="Alive.jpg" alt="Culture"> </td>
+</tr>
+<tr>
+<td> <img id="bact17" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact18" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact19" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact20" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact21" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact22" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact23" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact24" src="Alive.jpg" alt="Culture"> </td>
+</tr>
+<tr>
+<td> <img id="bact25" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact26" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact27" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact28" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact29" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact30" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact31" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact32" src="Alive.jpg" alt="Culture"> </td>
+</tr>
+<tr>
+<td> <img id="bact33" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact34" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact35" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact36" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact37" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact38" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact39" src="Alive.jpg" alt="Culture"> </td>
+<td> <img id="bact40" src="Alive.jpg" alt="Culture"> </td>
+</tr>
+</table>
+</div>
+
+<div id="interim1" class="interim1">
+<br /><br />
+<form>
+And thirty seconds is UP! Sorry.<br /><br />
+Recall that what you <i>just</i> saw were the cultures in the UNTREATED group over the course of five days. Indicate below when you're ready to see the TREATED group.
+<br /><br />
+<input type="button" onClick="goToExp()" value="Show Me!">
+</form>
+</div>
+
+<div id="interim2" class="interim2">
+<br /><br />
+<!-- <form> -->
+<form name="rateForm" action="ThankYou.php" method="post" onsubmit="return validateForm()">
+And thirty seconds is UP!<br /><br />
+Recall that what you <i>just</i> saw were cultures in the TREATED group over the course of five days. Please indicate
+how you consider the radiation to have affected survival below, using a scale from -100, meaning radiation strongly 
+discourages survival, to 100, meaning radiation strongly encourages survival. <br /><br />
+Your Rating: <input name="rateField" type="text" size="10" id="response">
+<input name="submit" type="submit" value="Submit Response" />
+<!-- <input type="button" onClick="goToThanks()" value="Submit Response"> -->
+</form>
+</div>
+
+<form align="center" id="debugDisplay">
+<input type="text" id="clockDisplay" size="4" />
+<input type="text" id="newField" size="4" />
+</form>
+
+</body>
+</html>
