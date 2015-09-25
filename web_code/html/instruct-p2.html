@@ -1,0 +1,100 @@
+<div id="container-instructions">
+
+    <!-- <div id="example" class="example"> -->
+    <h1>Example Diagrams</h1>
+    
+    <!-- <h1>Instructions</h1> -->
+    <!-- <hr> -->
+
+    <div class="instructions well">
+
+        <p>
+            Below you see an example culture, represented as a box. There will be 40 such cultures displayed in each diagram. When you press the button labeled "Luminesce" the culture will luminesce briefly.
+        </p>
+        <p>
+            To the right of the culture is a circular indicator that indicates when radiation is applied. When you press the button labeled "Irradiate Me!," it will send out radiation. Please note <b> this particular blue radiation has no effect</b> while radiation <b>during</b> the experiment <b>may or may not</b> alter the rate of luminescence. Note also that in the experiment, the scientists will control when irratiation occurs, so there will be no "Irradiate Me!" button.
+        </p>
+
+        <table align="center">
+            <tr>
+                <td><img id="exbact" src="normal.jpg" alt="Culture"/></td>
+                <td><img id="exInd" src="indOff.jpg" alt="Indicator"/></td>
+            </tr>
+            <tr><td><input type="button" onClick="exPlay1()" value="Luminesce" /></td>
+                <td><input type="button" onClick="exPlay2()" value="Irradiate Me!" /></td>
+            </tr>
+        </table>
+        <p>
+            When you feel you understand the diagrams, click "See a Rating Form Example."
+        </p>
+        <br/>
+        <form align="center">
+            <input type="button" onClick="goTo('example','desc')" value="Return to the Description"/>
+            <input type="button" onClick="goTo('example','formEx')" value="See a Rating Form Example"/>
+        </form>
+        <!-- </div> -->
+
+        <div id="formEx" class="formEx">
+            <h1>An Example Rating Form</h1>
+            <p>
+                After viewing the experiment, you will see a rating form similar to the one below. Following the experiment, the form will be titled "Ratings by Type of Relationship" instead, and the fields will be "Causal," "Preventative," and "None.But for the sake of example, pretend you roll a die. Distribute a total of 100 points among the inputs in accordance with your confidence in each outcome and press submit.
+            </p>
+            <form>
+                <fieldset>
+                    <legend>Confidence Ratings in Die Roll:</legend>
+                    <table align="center">
+                        <tr>
+                            <td align="center">Rolling 1,2,or 3:</td>
+                            <td align="center">Rolling 4 or 5:</td>
+                            <td align="center">Rolling 6:</td>
+                        </tr><tr>
+                        <td><input type="text" align="center" size="20" id="responseA"/></td>
+                        <td><input type="text" align="center" size="20" id="responseB"/></td>
+                        <td><input type="text" align="center" size="20" id="responseC"/></td>
+                    </tr>
+                </table>
+            </fieldset>
+            <br/>
+            <input type="button" onClick="toyForm()" value="Submit Response" />
+        </form>
+        <p>
+            Note that a good response for confidence in getting 1,2, or 3 might be "50". When you feel you understand the rating system, click "Proceed to the Experiment". Please make sure you understand the instructions before proceeding, as you will not be allowed to return.
+        </p>
+        <br/>
+        <form align="center"><input type="button" onClick="goTo('formEx','example')" value="Return to the Description"/>
+            <input type="button" onClick="goTo('formEx','exp')" value="Proceed to the Experiment."/></form>
+        </div>
+
+
+        <script type="text/javascript">
+        //console.log(psiTurk.getInstructionIndicator())
+        </script>
+
+    </div>
+
+    <hr>
+
+    <div class="instructionsnav">
+        <div class="row">
+            <div class="col-xs-2">
+            	<!--  Maybe not previous button on this screen? -->
+            	<!--
+                <button type="button" id="next" value="next" class="btn btn-primary btn-lg previous">
+                <span class="glyphicon glyphicon-arrow-left"></span> Previous
+                </button>
+            -->
+        </div>
+        <div class="col-xs-8">
+           <center>
+               <button type="button" id="next" value="next" class="btn btn-success btn-lg continue">
+                   Begin experiment <span class="glyphicon glyphicon-arrow-right"></span>
+               </button>
+           </center>
+       </div>
+       <div class="col-xs-2">
+
+       </div>
+   </div>
+</div>
+
+</div>
