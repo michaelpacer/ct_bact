@@ -7,28 +7,48 @@
 // Initalize psiturk object
 var psiTurk = new PsiTurk(uniqueId, adServerLoc, mode);
 
-var mycondition = condition;  // these two variables are passed by the psiturk server process
+var mycondition = condition;            // these two variables are passed by the psiturk server process
 var mycounterbalance = counterbalance;  // they tell you which condition you have been assigned to
-// they are not used in the stroop code but may be useful to you
+                                        // they are not used in the stroop code but may be useful to you
 
 // All pages to be loaded
+// Where does consent in this order? [DS]
 var pages = [
-	"instructions/instruct-1.html",
-	"instructions/instruct-2.html",
-	"instructions/instruct-3.html",
-	"instructions/instruct-ready.html",
+	"instructions/instruct-desc.html",
+	"instructions/instruct-ex-exp.html",
+	"instructions/instruct-ex-form.html",
 	"stage.html",
-	"postquestionnaire.html"
+	"questionnaire.html"
 ];
+
+//-----------------------------------------------------------------------------------
+// [DS]
+// image preloading should happen... 
+// probably there is a psiTurk.preloadImages(images)
+// var images = [];
+
+// if (document.images) {
+// 	litImage = new Image(84,85);
+// 	litImage.src = "Lit.jpg";
+	
+// 	normalImage = new Image(84,85);
+// 	normalImage.src = "normal.jpg";
+	
+// 	indOnImage = new Image(84,85);
+// 	indOnImage.src = "indOn.jpg";
+	
+// 	indOffImage = new Image(84,85);
+// 	indOffImage.src = "indOff.jpg";
+// }
+//-----------------------------------------------------------------------------------
+
 
 psiTurk.preloadPages(pages);
 
-var instructionPages = [ // add as a list as many pages as you like
-	"instructions/instruct-1.html",
-	"instructions/instruct-2.html",
-	"instructions/instruct-3.html",
-	"instructions/instruct-ready.html"
-];
+var instructionPages = ["instructions/instruct-desc.html",
+	                    "instructions/instruct-ex-exp.html",
+	                    "instructions/instruct-ex-form.html",
+	                    ];
 
 
 /********************
@@ -38,12 +58,14 @@ var instructionPages = [ // add as a list as many pages as you like
 * from the server when the PsiTurk object is created above. We
 * need code to get those pages from the PsiTurk object and 
 * insert them into the document.
-*
 ********************/
+
+
 
 /********************
 * STROOP TEST       *
 ********************/
+/********************************************************************************/
 var StroopExperiment = function() {
 
 	var wordon, // time word is presented
@@ -150,6 +172,126 @@ var StroopExperiment = function() {
 	// Start the test
 	next();
 };
+/**************************************************************************************/
+
+
+
+//------------------------------------------------------------//
+// Below is the ct_bact experiment.
+//
+// A brief overview of experiment control flow:
+// - begin()
+//
+//------------------------------------------------------------//
+var experiment = function() {
+
+	// Initialize some global vars:
+	var eTimesIndex     = 0;	 		// event times index
+	var lightOrderIndex = 0; 			// which light is going to be switched next?
+	var stopToggle      = 0; 			// should the experiment keep going?
+	var time            = 0; 			//
+	var elapsed         = 0; 			//
+	var offsets         = new Array();	// 
+
+	Array.prototype.sum = function() {return this.reduce(function(a,b){return a+b;});}
+
+	// Set up the default experiment imagery:
+	document.getElementById('bb').style.display='inline';
+	for(var i=1;i<=40;i++){
+		document.getElementById('bact' + i).src="normal.jpg";
+	}
+
+	
+	if((randViewInd+expCounter)%2===0){
+		document.getElementById('expLabel').innerHTML='The cultures currently displayed have no radiation exposure';
+		document.getElementById('indicator').style.display='none';
+		lightOrder = lightOrderBR; 	// Set light order to base-rate light order
+		eTimes     = eTimesBR;     	// Set event times to base-rate set
+		alert("You are about to see a set of cultures with NO radiation exposure");
+	}
+
+	if((randViewInd+expCounter)%2===1){
+		document.getElementById('expLabel').innerHTML='The cultures below are exposed to radiation when the indicator turns blue';
+		document.getElementById('indicator').style.display='block';
+		lightOrder = lightOrderP;	
+		eTimes     = eTimesP;
+		alert("You are about to see a set of cultures which is intermitently exposed to radiation.");
+	}
+
+	function beginTimeStepping(){
+		eTimesIndex     = 0;
+		lightOrderIndex = 0;
+		keepIterating   = 1;
+		start           = new Date().getTime();
+		time            = 0;
+
+		stepTime();											// Step through 20ms intervals & update images.
+		document.getElementById('bb').style.display='none';	// Hide the bact. when sub-exp is over. 
+		expCounter ++;										// Indicate we want to go to next sub exp.
+	}
+
+	function stepTime (){
+		timeStepActions();								    // Update images or move screens
+	    time    += 20;									    // update the wall time
+	    elapsed  = Math.floor(time / 10) / 100;             // update the elapsed time
+	    var diff = (new Date().getTime() - start) - time;   // find discrepancy to adjust
+		
+		if (keepIterating === 1) {
+			window.setTimeout(stepTime,(20 - diff));		// Wait 20ms then stepTime again
+		    offsets.push(diff);								// Keep the discrepancy. 
+		}
+	}
+
+	// This fn. checks the current time, updates the image array, and
+	// takes the user out of the experiment when 60 sec has passed.
+	function timeStepActions(){
+		var l = eTimes[eTimesIndex].length;
+		var s = eTimes[eTimesIndex];
+
+		if (elapsed === dTimes[dTimesIndex] && (randViewInd+expCounter)%2===0){
+			document.getElementById('indicator').src='indOn.jpg';
+			setTimeout("document.getElementById('indicator').src='indOff.jpg';",100);
+			dTimesIndex++;
+			}
+
+		for (var i=0;i<=l;i++){
+			if(elapsed===s[i]){
+				indexHolder.push(eTimesIndex);
+				light(lightOrder[lightOrderIndex]);
+				setTimeout("lightOff()",80);
+				eTimesIndex++;
+				lightOrderIndex++;
+			}
+		}
+
+		if(elapsed===60){
+			if(expCounter%2===0){
+				goTo('exp','interim2');
+			}
+			else{
+				goTo('exp','interim1');
+			}
+			dsc.push(Math.round(100*tracker.sum()/tracker.length)/100);
+			alert(dsc);
+		}
+	}
+
+
+    // These two functions "turn the lights on and off."
+	function light(i){
+		document.getElementById('bact'+i).src="lit.jpg";
+	}
+	function lightOff(){
+		var itemNum = indexHolder[0];
+		indexHolder.shift();
+		document.getElementById('bact'+lightOrder[itemNum]).src="normal.jpg";
+	}
+
+	var finish = function() {
+	    currentview = new Questionnaire();
+	};
+};
+
 
 
 /****************
@@ -217,8 +359,8 @@ var currentview;
  ******************/
 $(window).load( function(){
     psiTurk.doInstructions(
-    	instructionPages, // a list of pages you want to display in sequence
-    	function() { currentview = new StroopExperiment(); } // what you want to do when you are done with instructions
+    	instructionPages, 						       // a list of pages you want to display in sequence
+    	function() { currentview = new experiment(); } // what you want to do when you are done with instructions
     );
 });
 
@@ -242,34 +384,33 @@ if (document.images) {
 	indOffImage = new Image(84,85);
 	indOffImage.src = "indOff.jpg";
 }
-var dsc = new Array();
-var eTimes = new Array();
-var lightOrder = new Array();
-var expCounter = 0;
-var eTimesIndex = 0;
-var dTimesIndex = 0;
+var dsc             = new Array();
+var eTimes          = new Array();
+var lightOrder      = new Array();
+var expCounter      = 0;
+var eTimesIndex     = 0;
+var dTimesIndex     = 0;
 var lightOrderIndex = 0;
-var indexHolder = new Array();
-var stopToggle = 0;
-var	time = 0;
-var elapsed = 0;
-var clock = 0;
-var randViewInd = Math.floor(2*Math.random());
+var indexHolder     = new Array();
+var stopToggle      = 0;
+var	time            = 0;
+var elapsed         = 0;
+var clock           = 0;
+var randViewInd     = Math.floor(2*Math.random());
 
 //array sum and clock difference tracker
 Array.prototype.sum = function() {return this.reduce(function(a,b){return a+b;});}
 var tracker = new Array();
 
 function begin(){
-	eTimesIndex=0;
+	eTimesIndex     = 0;
 	lightOrderIndex = 0;
-	stopToggle = 0;
-	stopToggle = 0;
-	start = new Date().getTime();
-	time = 0;
+	stopToggle      = 0;
+	start           = new Date().getTime();
+	time            = 0;
 	newTimer();
 	document.getElementById('bb').style.display='none';
-	expCounter++;
+	expCounter ++;
 }
 
 //switching of images is done by changing source
@@ -328,28 +469,29 @@ function exPlay2(){
 
 function goTo(leave,show){
 	if(show=='exp'){
-		eTimesIndex = 0;
+		eTimesIndex     = 0;
 		lightOrderIndex = 0;
-		stopToggle = 0;
-		time = 0;
-		elapsed = 0;
-		clock = 0;
+		stopToggle      = 0;
+		time            = 0;
+		elapsed         = 0;
+		clock           = 0;
+
 		document.getElementById('bb').style.display='inline';
 		for(var i=1;i<=40;i++){document.getElementById('bact'+i).src="normal.jpg";}
 		if((randViewInd+expCounter)%2===0){
 			document.getElementById('expLabel').innerHTML='The cultures currently displayed have no radiation exposure';
 			document.getElementById('indicator').style.display='none';
 			lightOrder = lightOrderBR;
-			eTimes = eTimesBR;
+			eTimes     = eTimesBR;
 			alert("You are about to see a set of cultures with NO radiation exposure");
 		}
 		if((randViewInd+expCounter)%2===1){
 			document.getElementById('expLabel').innerHTML='The cultures below are exposed to radiation when the indicator turns blue';
 			document.getElementById('indicator').style.display='block';
 			lightOrder = lightOrderP;
-			eTimes = eTimesP;
+			eTimes     = eTimesP;
 			lightOrder = lightOrderP;
-			eTimes = eTimesP;
+			eTimes     = eTimesP;
 			alert("You are about to see a set of cultures which is intermitently exposed to radiation.");
 			}
 	}
