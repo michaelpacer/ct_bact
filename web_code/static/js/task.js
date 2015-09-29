@@ -11,13 +11,13 @@ var mycondition = condition;            // these two variables are passed by the
 var mycounterbalance = counterbalance;  // they tell you which condition you have been assigned to
                                         // they are not used in the stroop code but may be useful to you
 
-// All pages to be loaded
-// Where does consent in this order? [DS]
+
+// All pages to be loaded after Ad page which, accepted, splashes to consent page. 
 var pages = [
-	"instructions/instruct-desc.html",
-	"instructions/instruct-ex-exp.html",
-	"instructions/instruct-ex-form.html",
-	"stage.html",
+	"instruct-desc.html",
+	"instruct-ex-exp.html",
+	"instruct-ex-form.html",
+	"exp.html",
 	"questionnaire.html"
 ];
 
@@ -45,9 +45,9 @@ var pages = [
 
 psiTurk.preloadPages(pages);
 
-var instructionPages = ["instructions/instruct-desc.html",
-	                    "instructions/instruct-ex-exp.html",
-	                    "instructions/instruct-ex-form.html",
+var instructionPages = ["instruct-desc.html",
+	                    "instruct-ex-exp.html",
+	                    "instruct-ex-form.html",
 	                    ];
 
 
@@ -290,6 +290,8 @@ var experiment = function() {
 	var finish = function() {
 	    currentview = new Questionnaire();
 	};
+
+	psiTurk.showPage('exp.html');
 };
 
 
@@ -368,7 +370,7 @@ $(window).load( function(){
 
 // Our old JS code:
 //<!--
-
+/*
 //checks browser support for image el via object detection
 //preloads images
 if (document.images) {
@@ -577,3 +579,4 @@ function toyForm() {
 }
 
 //-->
+*/

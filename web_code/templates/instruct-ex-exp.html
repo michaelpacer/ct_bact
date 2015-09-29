@@ -5,6 +5,7 @@
     
     <!-- <h1>Instructions</h1> -->
     <!-- <hr> -->
+    <script src="/static/js/instruct.js" type="text/javascript"> </script>
 
     <div class="instructions well">
 
@@ -17,8 +18,8 @@
 
         <table align="center">
             <tr>
-                <td><img id="exbact" src="normal.jpg" alt="Culture"/></td>
-                <td><img id="exInd" src="indOff.jpg" alt="Indicator"/></td>
+                <td><img id="exbact" src="/static/images/normal.jpg" alt="Culture"/></td>
+                <td><img id="exInd" src="/static/images/indOff.jpg" alt="Indicator"/></td>
             </tr>
             <tr><td><input type="button" onClick="exPlay1()" value="Luminesce" /></td>
                 <td><input type="button" onClick="exPlay2()" value="Irradiate Me!" /></td>
@@ -28,11 +29,6 @@
             When you feel you understand the diagrams, click "See a Rating Form Example."
         </p>
         <br/>
-        <form align="center">
-            <input type="button" onClick="goTo('example','desc')" value="Return to the Description"/>
-            <input type="button" onClick="goTo('example','formEx')" value="See a Rating Form Example"/>
-        </form>
-        <!-- </div> -->
         
         <script type="text/javascript">
         //console.log(psiTurk.getInstructionIndicator())
@@ -44,18 +40,14 @@
 
     <div class="instructionsnav">
         <div class="row">
-            <div class="col-xs-2">
-            	<!--  Maybe not previous button on this screen? -->
-            	<!--
                 <button type="button" id="next" value="next" class="btn btn-primary btn-lg previous">
-                <span class="glyphicon glyphicon-arrow-left"></span> Previous
+                <span class="glyphicon glyphicon-arrow-left"></span> Back to the Description
                 </button>
-            -->
         </div>
         <div class="col-xs-8">
            <center>
                <button type="button" id="next" value="next" class="btn btn-success btn-lg continue">
-                   Begin experiment <span class="glyphicon glyphicon-arrow-right"></span>
+                   See a Rating Form Example <span class="glyphicon glyphicon-arrow-right"></span>
                </button>
            </center>
        </div>
