@@ -21,6 +21,12 @@ var pages = [
 	"questionnaire.html"
 ];
 
+var images = ["/static/images/lit.jpg",
+			  "/static/images/normal.jpg",
+			  "/static/images/indOn.jpg",
+			  "/static/images/indOff.jpg"
+];
+
 //-----------------------------------------------------------------------------------
 // [DS]
 // image preloading should happen... 
@@ -44,6 +50,7 @@ var pages = [
 
 
 psiTurk.preloadPages(pages);
+psiTurk.preloadImages(images);
 
 var instructionPages = ["instruct-desc.html",
 	                    "instruct-ex-exp.html",
@@ -184,21 +191,31 @@ var StroopExperiment = function() {
 //
 //------------------------------------------------------------//
 var experiment = function() {
+	psiTurk.showPage('exp.html');
+	addEvent(document.getElementById('beginButton'),'click',beginTimeStepping);
+
+	var dsc             = new Array();
+	var eTimes          = new Array();
+	var lightOrder      = new Array();
+	var dTimesIndex     = 0;
 
 	// Initialize some global vars:
 	var eTimesIndex     = 0;	 		// event times index
 	var lightOrderIndex = 0; 			// which light is going to be switched next?
 	var stopToggle      = 0; 			// should the experiment keep going?
+	var clock           = 0;
 	var time            = 0; 			//
 	var elapsed         = 0; 			//
-	var offsets         = new Array();	// 
+	var offsets         = new Array();	//
+	var randViewInd     = Math.floor(2*Math.random());
+	var expCounter      = 1; 
 
 	Array.prototype.sum = function() {return this.reduce(function(a,b){return a+b;});}
 
 	// Set up the default experiment imagery:
-	document.getElementById('bb').style.display='inline';
+	document.getElementById('beginButton').style.display='inline';
 	for(var i=1;i<=40;i++){
-		document.getElementById('bact' + i).src="normal.jpg";
+		document.getElementById('bact' + i).src="/static/images/normal.jpg";
 	}
 
 	
@@ -226,7 +243,7 @@ var experiment = function() {
 		time            = 0;
 
 		stepTime();											// Step through 20ms intervals & update images.
-		document.getElementById('bb').style.display='none';	// Hide the bact. when sub-exp is over. 
+		document.getElementById('beginButton').style.display='none';	// Hide the bact. when sub-exp is over. 
 		expCounter ++;										// Indicate we want to go to next sub exp.
 	}
 
@@ -249,16 +266,14 @@ var experiment = function() {
 		var s = eTimes[eTimesIndex];
 
 		if (elapsed === dTimes[dTimesIndex] && (randViewInd+expCounter)%2===0){
-			document.getElementById('indicator').src='indOn.jpg';
-			setTimeout("document.getElementById('indicator').src='indOff.jpg';",100);
+			document.getElementById('indicator').src='/static/images/indOn.jpg';
+			setTimeout("document.getElementById('indicator').src='/static/images/indOff.jpg';",100);
 			dTimesIndex++;
 			}
 
 		for (var i=0;i<=l;i++){
 			if(elapsed===s[i]){
-				indexHolder.push(eTimesIndex);
-				light(lightOrder[lightOrderIndex]);
-				setTimeout("lightOff()",80);
+				blinkLight(lightOrder[lightOrderIndex]);
 				eTimesIndex++;
 				lightOrderIndex++;
 			}
@@ -266,10 +281,11 @@ var experiment = function() {
 
 		if(elapsed===60){
 			if(expCounter%2===0){
-				goTo('exp','interim2');
+				//document.getElementById()
+				//goTo('exp','interim2');
 			}
 			else{
-				goTo('exp','interim1');
+				//goTo('exp','interim1');
 			}
 			dsc.push(Math.round(100*tracker.sum()/tracker.length)/100);
 			alert(dsc);
@@ -278,20 +294,20 @@ var experiment = function() {
 
 
     // These two functions "turn the lights on and off."
-	function light(i){
-		document.getElementById('bact'+i).src="lit.jpg";
-	}
-	function lightOff(){
-		var itemNum = indexHolder[0];
-		indexHolder.shift();
-		document.getElementById('bact'+lightOrder[itemNum]).src="normal.jpg";
+	function blinkLight(i){
+		var base_str = "document.getElementById(bact";
+		var turn_off = base_str.concat(toString(i),").src='/static/images/normal.jpg';");
+
+		function lightOff(){ document.getElementById('bact' + i).src="static/images/normal.jpg" }
+		document.getElementById('bact'+i).src="/static/images/lit.jpg";
+		setTimeout(lightOff,80)
 	}
 
 	var finish = function() {
 	    currentview = new Questionnaire();
 	};
 
-	psiTurk.showPage('exp.html');
+	//psiTurk.showPage('exp.html');
 };
 
 
@@ -353,6 +369,13 @@ var Questionnaire = function() {
 	
 };
 
+function addEvent(element, evnt, funct){
+  if (element.attachEvent)
+   return element.attachEvent('on'+evnt, funct);
+  else
+   return element.addEventListener(evnt, funct, false);
+}
+
 // Task object to keep track of the current phase
 var currentview;
 
@@ -361,11 +384,10 @@ var currentview;
  ******************/
 $(window).load( function(){
     psiTurk.doInstructions(
-    	instructionPages, 						       // a list of pages you want to display in sequence
+    	instructionPages, 						       // a list of pages you want to display in function
     	function() { currentview = new experiment(); } // what you want to do when you are done with instructions
     );
 });
-
 
 
 // Our old JS code:
