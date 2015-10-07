@@ -1,0 +1,69 @@
+
+<div id="container-questionnaire">
+    <h1>Task Complete</h1>
+    <hr>
+    <p> And 60 seconds is UP! </p>
+
+    <div class="instructions well">
+        <form id="postquiz" action="debrief" method="post">
+            <!-- beginning of a question -->
+            <div class="row question">
+                <div class="col-md-8">
+                    Please distribute 100 points among the catagories below to indicate how you consider the radiation to have affected luminescence. Remember a 0 means you have no confidence in a particular relationship and 100 means you have absolute confidence in said relationship. 
+                </div>
+                <div class="col-md-4">
+                    <br/>
+                    <br/>
+                    <fieldset>
+                        <legend>Ratings by Type of Relationship:</legend>
+                        <table align="center">
+                            <tr>
+                                <td align="center">Causal</td>
+                                <td align="center">Preventative</td>
+                                <td align="center">None</td>
+                            </tr>
+                            <tr>
+                                <!-- <select id="difficulty" name="difficulty">
+                                    <option value="10">10 - Very difficult</option>
+                                    <option value="9">9</option>
+                                    <option value="8">8</option>
+                                    <option value="7">7</option>
+                                    <option value="6">6</option>
+                                    <option value="5" SELECTED>5 - Moderately difficult</option>
+                                    <option value="4">4</option>
+                                    <option value="3">3</option>
+                                    <option value="2">2</option>
+                                    <option value="1">1</option>
+                                    <option value="0">0 - Not difficult at all</option>
+                                </select> -->
+                                <td><input name="rateFieldC" type="text" size="10" id="responseC"/></td>
+                                <td><input name="rateFieldP" type="text" size="10" id="responseP"/></td>
+                                <td><input name="rateFieldN" type="text" size="10" id="responseN"/></td>
+                            </tr>
+                        </table>
+                    </fieldset>
+                    <br/>
+
+                    <!-- <input name="trackerField" type="text" size="10" id="responseDsc" style="display:none"/> -->
+                </div>
+            </div>
+            <!-- end of a question -->
+        </form>
+    </div>
+
+    <hr>
+
+    <div class="instructionsnav">
+        <div class="row">
+            <div class="col-xs-2">
+            </div>
+            <div class="col-xs-7">
+            </div>
+            <div class="col-xs-3">
+                <button type="button" id="submit" value="submit" class="btn btn-primary btn-lg continue">
+                    Submit Response <span class="glyphicon glyphicon-arrow-right"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

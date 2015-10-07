@@ -11,14 +11,13 @@ var mycondition = condition;            // these two variables are passed by the
 var mycounterbalance = counterbalance;  // they tell you which condition you have been assigned to
                                         // they are not used in the stroop code but may be useful to you
 
-
 // All pages to be loaded after Ad page which, accepted, splashes to consent page. 
 var pages = [
 	"instruct-desc.html",
 	"instruct-ex-exp.html",
 	"instruct-ex-form.html",
 	"exp.html",
-	"questionnaire.html"
+	"postquestionnaire.html"
 ];
 
 var images = ["/static/images/lit.jpg",
@@ -26,28 +25,6 @@ var images = ["/static/images/lit.jpg",
 			  "/static/images/indOn.jpg",
 			  "/static/images/indOff.jpg"
 ];
-
-//-----------------------------------------------------------------------------------
-// [DS]
-// image preloading should happen... 
-// probably there is a psiTurk.preloadImages(images)
-// var images = [];
-
-// if (document.images) {
-// 	litImage = new Image(84,85);
-// 	litImage.src = "Lit.jpg";
-	
-// 	normalImage = new Image(84,85);
-// 	normalImage.src = "normal.jpg";
-	
-// 	indOnImage = new Image(84,85);
-// 	indOnImage.src = "indOn.jpg";
-	
-// 	indOffImage = new Image(84,85);
-// 	indOffImage.src = "indOff.jpg";
-// }
-//-----------------------------------------------------------------------------------
-
 
 psiTurk.preloadPages(pages);
 psiTurk.preloadImages(images);
@@ -67,122 +44,6 @@ var instructionPages = ["instruct-desc.html",
 * insert them into the document.
 ********************/
 
-
-
-/********************
-* STROOP TEST       *
-********************/
-/********************************************************************************/
-var StroopExperiment = function() {
-
-	var wordon, // time word is presented
-	    listening = false;
-
-	// Stimuli for a basic Stroop experiment
-	var stims = [
-			["SHIP", "red", "unrelated"],
-			["MONKEY", "green", "unrelated"],
-			["ZAMBONI", "blue", "unrelated"],
-			["RED", "red", "congruent"],
-			["GREEN", "green", "congruent"],
-			["BLUE", "blue", "congruent"],
-			["GREEN", "red", "incongruent"],
-			["BLUE", "green", "incongruent"],
-			["RED", "blue", "incongruent"]
-		];
-
-	stims = _.shuffle(stims);
-
-	var next = function() {
-		if (stims.length===0) {
-			finish();
-		}
-		else {
-			stim = stims.shift();
-			show_word( stim[0], stim[1] );
-			wordon = new Date().getTime();
-			listening = true;
-			d3.select("#query").html('<p id="prompt">Type "R" for Red, "B" for blue, "G" for green.</p>');
-		}
-	};
-	
-	var response_handler = function(e) {
-		if (!listening) return;
-
-		var keyCode = e.keyCode,
-			response;
-
-		switch (keyCode) {
-			case 82:
-				// "R"
-				response="red";
-				break;
-			case 71:
-				// "G"
-				response="green";
-				break;
-			case 66:
-				// "B"
-				response="blue";
-				break;
-			default:
-				response = "";
-				break;
-		}
-		if (response.length>0) {
-			listening = false;
-			var hit = response == stim[1];
-			var rt = new Date().getTime() - wordon;
-
-			psiTurk.recordTrialData({'phase':"TEST",
-                                     'word':stim[0],
-                                     'color':stim[1],
-                                     'relation':stim[2],
-                                     'response':response,
-                                     'hit':hit,
-                                     'rt':rt}
-                                   );
-			remove_word();
-			next();
-		}
-	};
-
-	var finish = function() {
-	    $("body").unbind("keydown", response_handler); // Unbind keys
-	    currentview = new Questionnaire();
-	};
-	
-	var show_word = function(text, color) {
-		d3.select("#stim")
-			.append("div")
-			.attr("id","word")
-			.style("color",color)
-			.style("text-align","center")
-			.style("font-size","150px")
-			.style("font-weight","400")
-			.style("margin","20px")
-			.text(text);
-	};
-
-	var remove_word = function() {
-		d3.select("#word").remove();
-	};
-
-	
-	// Load the stage.html snippet into the body of the page
-	psiTurk.showPage('stage.html');
-
-	// Register the response handler that is defined above to handle any
-	// key down events.
-	$("body").focus().keydown(response_handler); 
-
-	// Start the test
-	next();
-};
-/**************************************************************************************/
-
-
-
 //------------------------------------------------------------//
 // Below is the ct_bact experiment.
 //
@@ -192,12 +53,12 @@ var StroopExperiment = function() {
 //------------------------------------------------------------//
 var experiment = function() {
 	psiTurk.showPage('exp.html');
-	addEvent(document.getElementById('beginButton'),'click',beginTimeStepping);
 
 	var dsc             = new Array();
 	var eTimes          = new Array();
 	var lightOrder      = new Array();
 	var dTimesIndex     = 0;
+	var tracker			= new Array();
 
 	// Initialize some global vars:
 	var eTimesIndex     = 0;	 		// event times index
@@ -207,8 +68,12 @@ var experiment = function() {
 	var time            = 0; 			//
 	var elapsed         = 0; 			//
 	var offsets         = new Array();	//
-	var randViewInd     = Math.floor(2*Math.random());
-	var expCounter      = 1; 
+	var expCounter      = 0;
+	var keepIterating   = 1;
+	var alertMsg        = ''
+
+
+	if (Math.floor(2*Math.random()) == 0){ var condition = 'rad'} else { var condition = 'noRad'}
 
 	Array.prototype.sum = function() {return this.reduce(function(a,b){return a+b;});}
 
@@ -218,21 +83,33 @@ var experiment = function() {
 		document.getElementById('bact' + i).src="/static/images/normal.jpg";
 	}
 
-	
-	if((randViewInd+expCounter)%2===0){
-		document.getElementById('expLabel').innerHTML='The cultures currently displayed have no radiation exposure';
-		document.getElementById('indicator').style.display='none';
-		lightOrder = lightOrderBR; 	// Set light order to base-rate light order
-		eTimes     = eTimesBR;     	// Set event times to base-rate set
-		alert("You are about to see a set of cultures with NO radiation exposure");
-	}
+	addEvent(document.getElementById('beginButton'),'click',beginTimeStepping);	
+	addEvent(document.getElementById('nextButton' ),'click',nextPage);
 
-	if((randViewInd+expCounter)%2===1){
-		document.getElementById('expLabel').innerHTML='The cultures below are exposed to radiation when the indicator turns blue';
-		document.getElementById('indicator').style.display='block';
-		lightOrder = lightOrderP;	
-		eTimes     = eTimesP;
-		alert("You are about to see a set of cultures which is intermitently exposed to radiation.");
+	function setupPage(){
+		document.getElementById('interim1'   ).style.display = 'none'
+		document.getElementById('exp'        ).style.display = 'block'
+		document.getElementById('beginButton').style.display = 'block'
+
+		if (condition == 'rad') {
+			document.getElementById('expLabel').innerHTML='The cultures currently displayed have no radiation exposure';
+			document.getElementById('indicator').style.display='none';
+			lightOrder = lightOrderBR; 	// Set light order to base-rate light order
+			eTimes     = eTimesBR;     	// Set event times to base-rate set
+			condition  = 'noRad'		// Change condition for next time.
+			alertMsg   = "You are about to see a set of cultures with NO radiation exposure";
+		}
+
+		if (condition == 'noRad') {
+			document.getElementById('expLabel').innerHTML='The cultures below are exposed to radiation when the indicator turns blue';
+			document.getElementById('indicator').style.display='block';
+			lightOrder = lightOrderP;	
+			eTimes     = eTimesP;
+			condition  = 'rad'			// Change condition for next time.
+			alertMsg   = "You are about to see a set of cultures which is intermitently exposed to radiation.";
+		}
+
+		alert(alertMsg)
 	}
 
 	function beginTimeStepping(){
@@ -265,7 +142,7 @@ var experiment = function() {
 		var l = eTimes[eTimesIndex].length;
 		var s = eTimes[eTimesIndex];
 
-		if (elapsed === dTimes[dTimesIndex] && (randViewInd+expCounter)%2===0){
+		if (elapsed === dTimes[dTimesIndex] && (condition == 'rad')) {
 			document.getElementById('indicator').src='/static/images/indOn.jpg';
 			setTimeout("document.getElementById('indicator').src='/static/images/indOff.jpg';",100);
 			dTimesIndex++;
@@ -279,17 +156,16 @@ var experiment = function() {
 			}
 		}
 
-		if(elapsed===60){
-			if(expCounter%2===0){
-				//document.getElementById()
-				//goTo('exp','interim2');
+		if( elapsed === 2) {
+			keepIterating = 0
+			if (expCounter < 2 ) {
+				showInterim()
+			} else {
+				nextPage()
 			}
-			else{
-				//goTo('exp','interim1');
-			}
-			dsc.push(Math.round(100*tracker.sum()/tracker.length)/100);
-			alert(dsc);
 		}
+			//dsc.push(Math.round(100*tracker.sum()/tracker.length)/100);
+			//alert(dsc);
 	}
 
 
@@ -298,16 +174,26 @@ var experiment = function() {
 		var base_str = "document.getElementById(bact";
 		var turn_off = base_str.concat(toString(i),").src='/static/images/normal.jpg';");
 
-		function lightOff(){ document.getElementById('bact' + i).src="static/images/normal.jpg" }
 		document.getElementById('bact'+i).src="/static/images/lit.jpg";
+		function lightOff() {document.getElementById('bact' + i).src="static/images/normal.jpg"}
 		setTimeout(lightOff,80)
 	}
 
-	var finish = function() {
-	    currentview = new Questionnaire();
-	};
+	function showInterim(){
+		//var interim_page = "interim".concat(toString(num),".html")
+		document.getElementById('exp'     ).style.display = 'none'
+		document.getElementById('interim1').style.display = 'block'
+	}
 
-	//psiTurk.showPage('exp.html');
+	function nextPage(){
+		if (expCounter < 2) {
+			setupPage()
+		} else {
+	    	currentview = new Questionnaire();
+		}
+	}
+
+	setupPage()
 };
 
 
@@ -324,13 +210,9 @@ var Questionnaire = function() {
 
 		psiTurk.recordTrialData({'phase':'postquestionnaire', 'status':'submit'});
 
-		$('textarea').each( function(i, val) {
-			psiTurk.recordUnstructuredData(this.id, this.value);
-		});
-		$('select').each( function(i, val) {
+		$('input').each( function(i, val) {
 			psiTurk.recordUnstructuredData(this.id, this.value);		
 		});
-
 	};
 
 	prompt_resubmit = function() {
@@ -355,15 +237,15 @@ var Questionnaire = function() {
 	psiTurk.showPage('postquestionnaire.html');
 	psiTurk.recordTrialData({'phase':'postquestionnaire', 'status':'begin'});
 	
-	$("#next").click(function () {
+	$("#submit").click(function () {
 	    record_responses();
 	    psiTurk.saveData({
             success: function(){
                 psiTurk.computeBonus('compute_bonus', function() { 
                 	psiTurk.completeHIT(); // when finished saving compute bonus, the quit
                 }); 
-            }, 
-            error: prompt_resubmit});
+            }, // for some reason when prompt_resubmit gets triggered below, replaceBody can't be found ...
+            error: alert('error!') });//prompt_resubmit});
 	});
     
 	
@@ -389,216 +271,3 @@ $(window).load( function(){
     );
 });
 
-
-// Our old JS code:
-//<!--
-/*
-//checks browser support for image el via object detection
-//preloads images
-if (document.images) {
-	litImage = new Image(84,85);
-	litImage.src = "Lit.jpg";
-	
-	normalImage = new Image(84,85);
-	normalImage.src = "normal.jpg";
-	
-	indOnImage = new Image(84,85);
-	indOnImage.src = "indOn.jpg";
-	
-	indOffImage = new Image(84,85);
-	indOffImage.src = "indOff.jpg";
-}
-var dsc             = new Array();
-var eTimes          = new Array();
-var lightOrder      = new Array();
-var expCounter      = 0;
-var eTimesIndex     = 0;
-var dTimesIndex     = 0;
-var lightOrderIndex = 0;
-var indexHolder     = new Array();
-var stopToggle      = 0;
-var	time            = 0;
-var elapsed         = 0;
-var clock           = 0;
-var randViewInd     = Math.floor(2*Math.random());
-
-//array sum and clock difference tracker
-Array.prototype.sum = function() {return this.reduce(function(a,b){return a+b;});}
-var tracker = new Array();
-
-function begin(){
-	eTimesIndex     = 0;
-	lightOrderIndex = 0;
-	stopToggle      = 0;
-	start           = new Date().getTime();
-	time            = 0;
-	newTimer();
-	document.getElementById('bb').style.display='none';
-	expCounter ++;
-}
-
-//switching of images is done by changing source
-function checkTime(){
-	var l = eTimes[eTimesIndex].length;
-	var s = eTimes[eTimesIndex];
-	if(elapsed===dTimes[dTimesIndex] && (randViewInd+expCounter)%2===0){
-		document.getElementById('indicator').src='indOn.jpg';
-		setTimeout("document.getElementById('indicator').src='indOff.jpg';",100);
-		dTimesIndex++;
-		}
-	for (var i=0;i<=l;i++){
-			if(elapsed===s[i]){
-			indexHolder.push(eTimesIndex);
-			light(lightOrder[lightOrderIndex]);
-			setTimeout("lightOff()",80);
-			eTimesIndex++;
-			lightOrderIndex++;
-		}
-	}
-	if(elapsed===60){
-		if(expCounter%2===0){goTo('exp','interim2');}
-		else{goTo('exp','interim1');}
-		dsc.push(Math.round(100*tracker.sum()/tracker.length)/100);
-		alert(dsc);
-	}
-}
-
-function exPlay1(){
-	exClock();
-	function exClock(){
-		clock=Math.round(clock*100+1)/100;
-		if(clock==0.5){document.getElementById('exbact').src="lit.jpg";}
-		if(clock==1){
-			document.getElementById('exbact').src="normal.jpg";
-			clock=0;
-			return false;
-		}
-		t=setTimeout("exPlay1()",10);
-	}
-}
-
-function exPlay2(){
-	exClock();
-	function exClock(){
-		clock=Math.round(clock*100+1)/100;
-		if(clock==0.5){document.getElementById('exInd').src="indOn.jpg";}
-		if(clock==1){
-			document.getElementById('exInd').src="indOff.jpg";
-			clock=0;
-			return false;
-		}
-		t=setTimeout("exPlay2()",10);
-	}
-}
-
-function goTo(leave,show){
-	if(show=='exp'){
-		eTimesIndex     = 0;
-		lightOrderIndex = 0;
-		stopToggle      = 0;
-		time            = 0;
-		elapsed         = 0;
-		clock           = 0;
-
-		document.getElementById('bb').style.display='inline';
-		for(var i=1;i<=40;i++){document.getElementById('bact'+i).src="normal.jpg";}
-		if((randViewInd+expCounter)%2===0){
-			document.getElementById('expLabel').innerHTML='The cultures currently displayed have no radiation exposure';
-			document.getElementById('indicator').style.display='none';
-			lightOrder = lightOrderBR;
-			eTimes     = eTimesBR;
-			alert("You are about to see a set of cultures with NO radiation exposure");
-		}
-		if((randViewInd+expCounter)%2===1){
-			document.getElementById('expLabel').innerHTML='The cultures below are exposed to radiation when the indicator turns blue';
-			document.getElementById('indicator').style.display='block';
-			lightOrder = lightOrderP;
-			eTimes     = eTimesP;
-			lightOrder = lightOrderP;
-			eTimes     = eTimesP;
-			alert("You are about to see a set of cultures which is intermitently exposed to radiation.");
-			}
-	}
-	window.scrollTo(0,0);
-	if (leave == '') {document.getElementById(show).style.display='block';}
-	else{
-		stopToggle = 1;
-		document.getElementById(leave).style.display='none';
-		document.getElementById(show).style.display='block';
-	}
-}
-
-function init(){
-	goTo('','consent');
-}
-
-function light(i){
-	document.getElementById('bact'+i).src="lit.jpg";
-}
-
-function newTimer(){
-	checkTime();
-    time += 20;
-    elapsed = Math.floor(time / 10) / 100;
-    var diff = (new Date().getTime() - start) - time;
-	if(stopToggle===0){
-	window.setTimeout(newTimer,(20 - diff));
-	tracker.push(diff);
-	}
-}
-
-function lightOff(){
-	var itemNum = indexHolder[0];
-	indexHolder.shift();
-	document.getElementById('bact'+lightOrder[itemNum]).src="normal.jpg";
-}
-
-function validateForm() {
-	var ans = new Array();
-    ans[0] = document.forms["rateForm"]["rateFieldC"].value;
-    ans[1] = parseInt(ans[0]);
-	ans[2] = document.forms["rateForm"]["rateFieldP"].value;
-    ans[3] = parseInt(ans[2]);
-	ans[4] = document.forms["rateForm"]["rateFieldN"].value;
-    ans[5] = parseInt(ans[4]);
-	for(var j=0;j<=2;j++){
-		if(ans[2*j]!=ans[2*j+1]){
-			alert("Please fill in each field, using only numeric characters in your responses.");
-			return false;
-			}
-		if(ans[2*j+1]>100 || ans[2*j+1]<-100){
-			alert("You must provide individual ratings between 0 (no confidence) and 100 (total confidence)");
-			return false;
-			}
-		}
-	var sum = ans[1]+ans[3]+ans[5];
-	if(sum!=100){alert("The sum of your responses is equal to "+sum+". Please revise your entries so they add up to 100"); return false;}
-	document.forms["rateForm"]["responseDsc"].value=dsc;
-	thisform.submit();
-}
-
-function toyForm() {
-	var ans = new Array();
-    ans[0] = document.getElementById('responseA').value;
-    ans[1] = parseInt(ans[0]);
-	ans[2] = document.getElementById('responseB').value;
-    ans[3] = parseInt(ans[2]);
-	ans[4] = document.getElementById('responseC').value;
-    ans[5] = parseInt(ans[4]);
-	for(var j=0;j<=2;j++){
-		if(ans[2*j]!=ans[2*j+1]){
-			alert("Please fill in each field, using only numeric characters in your responses.");
-			return false;
-			}
-		if(ans[2*j+1]>100 || ans[2*j+1]<-100){
-			alert("Please provide individual ratings between 0 (no confidence) and 100 (total confidence)");
-			return false;
-			}
-		}
-	var sum = ans[1]+ans[3]+ans[5];
-	if(sum!=100){alert("The sum of your responses is equal to "+sum+". Please revise your entries so they add up to 100"); return false;}
-	alert("Looks like you understand how the form works!")
-}
-
-//-->
-*/
